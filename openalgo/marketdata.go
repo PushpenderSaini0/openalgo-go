@@ -151,3 +151,72 @@ func (c *Client) Expiry(symbol, exchange, instrumentType string) (map[string]int
 	}
 	return c.makeRequest("POST", "expiry", payload)
 }
+
+// MultiQuotes gets quotes for multiple symbols
+func (c *Client) MultiQuotes(symbols []map[string]string) (map[string]interface{}, error) {
+	payload := map[string]interface{}{
+		"apikey":  c.apiKey,
+		"symbols": symbols,
+	}
+	return c.makeRequest("POST", "multiquotes", payload)
+}
+
+// OptionChain gets option chain data for an underlying
+func (c *Client) OptionChain(underlying, exchange, expiryDate string, strikeCount ...int) (map[string]interface{}, error) {
+	payload := map[string]interface{}{
+		"apikey":      c.apiKey,
+		"underlying":  underlying,
+		"exchange":    exchange,
+		"expiry_date": expiryDate,
+	}
+	if len(strikeCount) > 0 {
+		payload["strike_count"] = strikeCount[0]
+	}
+	return c.makeRequest("POST", "optionchain", payload)
+}
+
+// OptionSymbol gets option symbol based on offset from ATM
+func (c *Client) OptionSymbol(underlying, exchange, expiryDate, offset, optionType string) (map[string]interface{}, error) {
+	payload := map[string]interface{}{
+		"apikey":      c.apiKey,
+		"underlying":  underlying,
+		"exchange":    exchange,
+		"expiry_date": expiryDate,
+		"offset":      offset,
+		"option_type": optionType,
+	}
+	return c.makeRequest("POST", "optionsymbol", payload)
+}
+
+// SyntheticFuture calculates synthetic future price from ATM options
+func (c *Client) SyntheticFuture(underlying, exchange, expiryDate string) (map[string]interface{}, error) {
+	payload := map[string]interface{}{
+		"apikey":      c.apiKey,
+		"underlying":  underlying,
+		"exchange":    exchange,
+		"expiry_date": expiryDate,
+	}
+	return c.makeRequest("POST", "syntheticfuture", payload)
+}
+
+// OptionGreeks calculates option Greeks for a symbol
+func (c *Client) OptionGreeks(symbol, exchange string, interestRate float64, underlyingSymbol, underlyingExchange string) (map[string]interface{}, error) {
+	payload := map[string]interface{}{
+		"apikey":              c.apiKey,
+		"symbol":              symbol,
+		"exchange":            exchange,
+		"interest_rate":       interestRate,
+		"underlying_symbol":   underlyingSymbol,
+		"underlying_exchange": underlyingExchange,
+	}
+	return c.makeRequest("POST", "optiongreeks", payload)
+}
+
+// Instruments gets all instruments for an exchange
+func (c *Client) Instruments(exchange string) (map[string]interface{}, error) {
+	payload := map[string]interface{}{
+		"apikey":   c.apiKey,
+		"exchange": exchange,
+	}
+	return c.makeRequest("POST", "instruments", payload)
+}

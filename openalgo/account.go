@@ -119,3 +119,35 @@ func (c *Client) Holdings() (map[string]interface{}, error) {
 	}
 	return c.makeRequest("POST", "holdings", payload)
 }
+
+// MarginPosition represents a position for margin calculation
+type MarginPosition struct {
+	Symbol    string `json:"symbol"`
+	Exchange  string `json:"exchange"`
+	Action    string `json:"action"`
+	Product   string `json:"product"`
+	PriceType string `json:"pricetype"`
+	Quantity  string `json:"quantity"`
+}
+
+// Margin calculates margin requirements for positions
+func (c *Client) Margin(positions []MarginPosition) (map[string]interface{}, error) {
+	// Convert positions to interface slice
+	positionsPayload := make([]map[string]interface{}, len(positions))
+	for i, pos := range positions {
+		positionsPayload[i] = map[string]interface{}{
+			"symbol":    pos.Symbol,
+			"exchange":  pos.Exchange,
+			"action":    pos.Action,
+			"product":   pos.Product,
+			"pricetype": pos.PriceType,
+			"quantity":  pos.Quantity,
+		}
+	}
+
+	payload := map[string]interface{}{
+		"apikey":    c.apiKey,
+		"positions": positionsPayload,
+	}
+	return c.makeRequest("POST", "margin", payload)
+}

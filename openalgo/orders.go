@@ -351,3 +351,100 @@ func (c *Client) OpenPosition(strategy, symbol, exchange, product string) (map[s
 
 	return c.makeRequest("POST", "openposition", payload)
 }
+
+// OptionsOrder places an options order with automatic strike selection
+func (c *Client) OptionsOrder(strategy, underlying, exchange, expiryDate, offset, optionType, action string, quantity interface{}, priceType, product string, splitSize interface{}) (map[string]interface{}, error) {
+	if strategy == "" {
+		strategy = "GO Strategy"
+	}
+	if priceType == "" {
+		priceType = "MARKET"
+	}
+	if product == "" {
+		product = "NRML"
+	}
+
+	payload := map[string]interface{}{
+		"apikey":      c.apiKey,
+		"strategy":    strategy,
+		"underlying":  underlying,
+		"exchange":    exchange,
+		"expiry_date": expiryDate,
+		"offset":      offset,
+		"option_type": optionType,
+		"action":      action,
+		"pricetype":   priceType,
+		"product":     product,
+	}
+
+	// Convert quantity to string
+	switch v := quantity.(type) {
+	case string:
+		payload["quantity"] = v
+	case int:
+		payload["quantity"] = fmt.Sprintf("%d", v)
+	case float64:
+		payload["quantity"] = fmt.Sprintf("%.0f", v)
+	default:
+		payload["quantity"] = "1"
+	}
+
+	// Convert splitsize to string
+	switch v := splitSize.(type) {
+	case string:
+		payload["splitsize"] = v
+	case int:
+		payload["splitsize"] = fmt.Sprintf("%d", v)
+	case float64:
+		payload["splitsize"] = fmt.Sprintf("%.0f", v)
+	default:
+		payload["splitsize"] = "0"
+	}
+
+	return c.makeRequest("POST", "optionsorder", payload)
+}
+
+// OptionsLeg represents a single leg in a multi-leg options order
+type OptionsLeg struct {
+	Offset     string `json:"offset"`
+	OptionType string `json:"option_type"`
+	Action     string `json:"action"`
+	Quantity   string `json:"quantity"`
+	ExpiryDate string `json:"expiry_date,omitempty"`
+}
+
+// OptionsMultiOrder places a multi-leg options order (e.g., Iron Condor, Spreads)
+func (c *Client) OptionsMultiOrder(strategy, underlying, exchange, expiryDate string, legs []OptionsLeg) (map[string]interface{}, error) {
+	if strategy == "" {
+		strategy = "GO Strategy"
+	}
+
+	// Convert legs to interface slice
+	legsPayload := make([]map[string]interface{}, len(legs))
+	for i, leg := range legs {
+		legMap := map[string]interface{}{
+			"offset":      leg.Offset,
+			"option_type": leg.OptionType,
+			"action":      leg.Action,
+			"quantity":    leg.Quantity,
+		}
+		if leg.ExpiryDate != "" {
+			legMap["expiry_date"] = leg.ExpiryDate
+		}
+		legsPayload[i] = legMap
+	}
+
+	payload := map[string]interface{}{
+		"apikey":     c.apiKey,
+		"strategy":   strategy,
+		"underlying": underlying,
+		"exchange":   exchange,
+		"legs":       legsPayload,
+	}
+
+	if expiryDate != "" {
+		payload["expiry_date"] = expiryDate
+	}
+
+	return c.makeRequest("POST", "optionsmultiorder", payload)
+}
