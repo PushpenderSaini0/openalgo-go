@@ -249,17 +249,17 @@ func (c *Client) ModifyOrder(orderID, strategy, symbol, action, exchange, priceT
 	}
 
 	payload := map[string]interface{}{
-		"apikey":              c.apiKey,
-		"orderid":             orderID,
-		"strategy":            strategy,
-		"symbol":              symbol,
-		"action":              action,
-		"exchange":            exchange,
-		"pricetype":           priceType,
-		"product":             product,
-		"price":               price,
-		"disclosed_quantity":  disclosedQuantity,
-		"trigger_price":       triggerPrice,
+		"apikey":             c.apiKey,
+		"orderid":            orderID,
+		"strategy":           strategy,
+		"symbol":             symbol,
+		"action":             action,
+		"exchange":           exchange,
+		"pricetype":          priceType,
+		"product":            product,
+		"price":              price,
+		"disclosed_quantity": disclosedQuantity,
+		"trigger_price":      triggerPrice,
 	}
 
 	// Convert quantity to string

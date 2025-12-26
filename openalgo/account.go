@@ -3,10 +3,10 @@ package openalgo
 type FundsResponse struct {
 	Status string `json:"status"`
 	Data   struct {
-		AvailableCash string `json:"availablecash"`
-		Collateral    string `json:"collateral"`
-		M2MRealized   string `json:"m2mrealized"`
-		M2MUnrealized string `json:"m2munrealized"`
+		AvailableCash  string `json:"availablecash"`
+		Collateral     string `json:"collateral"`
+		M2MRealized    string `json:"m2mrealized"`
+		M2MUnrealized  string `json:"m2munrealized"`
 		UtilisedDebits string `json:"utiliseddebits"`
 	} `json:"data"`
 }
